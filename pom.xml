@@ -59,4 +59,8 @@
               <layout>default</layout>
             </pluginRepository>
   </pluginRepositories>
+
+  <build>
+      <testSourceDirectory>src/test/java</testSourceDirectory>
+  </build>
 </project>
