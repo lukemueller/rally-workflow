@@ -35,9 +35,21 @@ public abstract class FlowdockMessage {
         return this.apiUrl;
     }
 
-    protected void setBuildAndResult(AbstractBuild build, BuildResult buildResult) {
+    protected void setBuild(AbstractBuild build) {
         this.build = build;
+    }
+
+    protected void setBuildResult(BuildResult buildResult) {
         this.buildResult = buildResult;
+    }
+
+    protected void setBuildAndResult(AbstractBuild build, BuildResult buildResult) {
+        setBuild(build);
+        setBuildResult(buildResult);
+    }
+
+    protected String getBuildNumber() {
+        return build.getDisplayName().replaceAll("#", "");
     }
 
     public abstract String asPostData() throws UnsupportedEncodingException;

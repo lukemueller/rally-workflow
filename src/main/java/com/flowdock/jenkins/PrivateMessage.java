@@ -37,7 +37,7 @@ public class PrivateMessage extends FlowdockMessage {
 
     @Override
     protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        setBuildAndResult(build, buildResult);
     }
 
 }
