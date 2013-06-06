@@ -118,24 +118,37 @@ public class FlowdockNotifier extends Notifier {
     }
 
     protected void notifyFlowdock(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
-        PrintStream logger = listener.getLogger();
+        FlowdockAPI api = new FlowdockAPI(getDescriptor().apiUrl(), flowToken);
         try {
-            FlowdockAPI api = new FlowdockAPI(getDescriptor().apiUrl(), flowToken);
-            TeamInboxMessage msg = TeamInboxMessage.fromBuild(build, buildResult);
-            msg.setTags(notificationTags);
-            api.pushTeamInboxMessage(msg);
-            listener.getLogger().println("Flowdock: Team Inbox notification sent successfully");
-
-            if(build.getResult() != Result.SUCCESS && chatNotification) {
-                ChatMessage chatMsg = ChatMessage.fromBuild(build, buildResult);
-                chatMsg.setTags(notificationTags);
-                api.pushChatMessage(chatMsg);
-                logger.println("Flowdock: Chat notification sent successfully");
-            }
-        } catch(FlowdockException ex) {
+            sendTeamInboxMessage(api, build, buildResult, listener);
+            sendChatMessage(api, build, buildResult, listener);
+            sendPrivateMessage();
+        } catch (FlowdockException e) {
+            PrintStream logger = listener.getLogger();
             logger.println("Flowdock: failed to send notification");
-            logger.println("Flowdock: " + ex.getMessage());
+            logger.println("Flowdock: " + e.getMessage());
         }
+    }
+
+    protected void sendTeamInboxMessage(FlowdockAPI api, AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException {
+        TeamInboxMessage msg = TeamInboxMessage.fromBuild(build, buildResult);
+        msg.setTags(notificationTags);
+        api.pushTeamInboxMessage(msg);
+        listener.getLogger().println("Flowdock: Team Inbox notification sent successfully");
+    }
+
+    protected void sendChatMessage(FlowdockAPI api, AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException {
+        if(build.getResult() != Result.SUCCESS && chatNotification) {
+            ChatMessage chatMsg = ChatMessage.fromBuild(build, buildResult);
+            chatMsg.setTags(notificationTags);
+            api.pushChatMessage(chatMsg);
+            listener.getLogger().println("Flowdock: Chat notification sent successfully");
+        }
+
+    }
+
+    protected void sendPrivateMessage() {
+
     }
 
     @Override

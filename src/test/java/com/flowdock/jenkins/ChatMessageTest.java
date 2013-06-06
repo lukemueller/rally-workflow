@@ -8,20 +8,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-public class PrivateMessageTest {
+public class ChatMessageTest {
 
     @Test
     public void getApiUrlShouldReturnCorrectPrivateMessageUrl() {
-        PrivateMessage privateMessage = createPrivateMessage();
-        String expectedApiUrl = "https://123@api.flowdock.com/private/foo/messages";
+        ChatMessage chatMessage = createPrivateMessage();
+        String expectedApiUrl = "https://api.flowdock.com/messages/chat/123";
 
-        assertThat(privateMessage.getApiUrl(), is(expectedApiUrl));
+        assertThat(chatMessage.getApiUrl(), is(expectedApiUrl));
     }
 
     @Test
     public void asPostDataSetsRequiredPostParams() throws UnsupportedEncodingException {
-        PrivateMessage privateMessage = createPrivateMessage();
-        String postData = privateMessage.asPostData();
+        ChatMessage chatMessage = createPrivateMessage();
+        String postData = chatMessage.asPostData();
 
         for(String parameter : getRequiredInputParams()) {
             assertThat(postData, containsString(parameter));
@@ -29,11 +29,11 @@ public class PrivateMessageTest {
 
     }
 
-    private PrivateMessage createPrivateMessage() {
-        return new PrivateMessage("123", "foo");
+    private ChatMessage createPrivateMessage() {
+        return new ChatMessage("123");
     }
 
     private String[] getRequiredInputParams() {
-        return new String[] { "event=message", "&content=" };
+        return new String[] { "external_user_name=", "content=", "tags=" };
     }
 }

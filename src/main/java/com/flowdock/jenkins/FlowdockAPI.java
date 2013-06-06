@@ -15,10 +15,15 @@ import java.net.MalformedURLException;
 public class FlowdockAPI {
     private String apiUrl;
     private String flowToken;
+    private FlowdockMessage message;
 
     public FlowdockAPI(String apiUrl, String flowToken) {
         this.apiUrl = apiUrl;
         this.flowToken = trimFlowTokens(flowToken);
+    }
+
+    public FlowdockAPI(FlowdockMessage message) {
+        this.message = message;
     }
 
     public void pushTeamInboxMessage(TeamInboxMessage msg) throws FlowdockException {
@@ -37,9 +42,18 @@ public class FlowdockAPI {
         }
     }
 
+    public void pushPrivateMessage(PrivateMessage msg) throws FlowdockException {
+        try {
+         doPost("/private/30060/messages", msg.asPostData());
+        } catch(UnsupportedEncodingException ex) {
+            throw new FlowdockException("Cannot encode request data: " + ex.getMessage());
+        }
+    }
+
     private void doPost(String path, String data) throws FlowdockException {
         URL url;
         HttpURLConnection connection = null;
+        // https://api.flowdock.com/private/30060/messages/flowtoken
         String flowdockUrl = apiUrl + path + flowToken;
         try {
             // create connection
@@ -86,5 +100,9 @@ public class FlowdockAPI {
 
     public static String trimFlowTokens(String flowTokens) {
         return flowTokens.replaceAll("\\s", "");
+    }
+
+    public String getApiUrl() {
+        return this.message.getApiUrl();
     }
 }

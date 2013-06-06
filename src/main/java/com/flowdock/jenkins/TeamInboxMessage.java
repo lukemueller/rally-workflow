@@ -1,5 +1,6 @@
 package com.flowdock.jenkins;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.ArrayList;
 import hudson.model.AbstractBuild;
@@ -30,6 +31,11 @@ public class TeamInboxMessage extends FlowdockMessage {
         this.source = "Jenkins";
         this.fromAddress = FLOWDOCK_BUILD_OK_EMAIL;
         this.fromName = "CI";
+    }
+
+    public TeamInboxMessage(String token) {
+        this.token = token;
+        setApiUrl();
     }
 
     public void setSource(String source) {
@@ -67,6 +73,10 @@ public class TeamInboxMessage extends FlowdockMessage {
         postData.append("&link=").append(urlEncode(link));
         postData.append("&tags=").append(urlEncode(tags));
         return postData.toString();
+    }
+
+    public void setApiUrl() {
+        this.apiUrl = MessageFormat.format("{0}/team_inbox/messages/{1}", this.baseApiUrl, this.token);
     }
 
     public static TeamInboxMessage fromBuild(AbstractBuild build, BuildResult buildResult) {
