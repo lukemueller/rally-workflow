@@ -3,21 +3,18 @@ package com.flowdock.jenkins;
 import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.util.FormValidation;
 import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
 import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.tasks.Notifier;
-import hudson.tasks.Publisher;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Notifier;
+import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.QueryParameter;
 
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +25,7 @@ public class FlowdockNotifier extends Notifier {
     private final String flowToken;
     private final String notificationTags;
     private final boolean chatNotification;
+    private final boolean privateNotification;
 
     private final Map<BuildResult, Boolean> notifyMap;
     private final boolean notifySuccess;
@@ -40,18 +38,20 @@ public class FlowdockNotifier extends Notifier {
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public FlowdockNotifier(String flowToken, String notificationTags, String chatNotification,
-        String notifySuccess, String notifyFailure, String notifyFixed, String notifyUnstable,
-        String notifyAborted, String notifyNotBuilt) {
+                            String privateNotification, String notifySuccess, String notifyFailure,
+                            String notifyFixed, String notifyUnstable, String notifyAborted,
+                            String notifyNotBuilt) {
         this.flowToken = flowToken;
         this.notificationTags = notificationTags;
-        this.chatNotification = chatNotification != null && chatNotification.equals("true");
+        this.privateNotification = toBoolean(privateNotification);
+        this.chatNotification = toBoolean(chatNotification);
 
-        this.notifySuccess = notifySuccess != null && notifySuccess.equals("true");
-        this.notifyFailure = notifyFailure != null && notifyFailure.equals("true");
-        this.notifyFixed = notifyFixed != null && notifyFixed.equals("true");
-        this.notifyUnstable = notifyUnstable != null && notifyUnstable.equals("true");
-        this.notifyAborted = notifyAborted != null && notifyAborted.equals("true");
-        this.notifyNotBuilt = notifyNotBuilt != null && notifyNotBuilt.equals("true");
+        this.notifySuccess = toBoolean(notifySuccess);
+        this.notifyFailure = toBoolean(notifyFailure);
+        this.notifyFixed = toBoolean(notifyFixed);
+        this.notifyUnstable = toBoolean(notifyUnstable);
+        this.notifyAborted = toBoolean(notifyAborted);
+        this.notifyNotBuilt = toBoolean(notifyNotBuilt);
 
         // set notification map
         this.notifyMap = new HashMap<BuildResult, Boolean>();
@@ -63,35 +63,8 @@ public class FlowdockNotifier extends Notifier {
         this.notifyMap.put(BuildResult.NOT_BUILT, this.notifyNotBuilt);
     }
 
-    public String getFlowToken() {
-        return flowToken;
-    }
-
-    public String getNotificationTags() {
-        return notificationTags;
-    }
-
-    public boolean getChatNotification() {
-        return chatNotification;
-    }
-
-    public boolean getNotifySuccess() {
-        return notifySuccess;
-    }
-    public boolean getNotifyFailure() {
-        return notifyFailure;
-    }
-    public boolean getNotifyFixed() {
-        return notifyFixed;
-    }
-    public boolean getNotifyUnstable() {
-        return notifyUnstable;
-    }
-    public boolean getNotifyAborted() {
-        return notifyAborted;
-    }
-    public boolean getNotifyNotBuilt() {
-        return notifyNotBuilt;
+    private boolean toBoolean(String configParameter) {
+        return configParameter != null && configParameter.equals("true");
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
@@ -106,7 +79,7 @@ public class FlowdockNotifier extends Notifier {
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
         BuildResult buildResult = BuildResult.fromBuild(build);
-        if(shouldNotify(buildResult)) {
+        if (shouldNotify(buildResult)) {
             notifyFlowdock(build, buildResult, listener);
         } else {
             listener.getLogger().println("No Flowdock notification configured for build status: " + buildResult.toString());
@@ -141,7 +114,7 @@ public class FlowdockNotifier extends Notifier {
     }
 
     protected void sendChatMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
-        if(build.getResult() != Result.SUCCESS && chatNotification) {
+        if (build.getResult() != Result.SUCCESS && chatNotification) {
             ChatMessage chatMessage = new ChatMessage(flowToken);
             chatMessage.setTags(notificationTags);
             chatMessage.setContentFromBuild(build, buildResult);
@@ -158,7 +131,7 @@ public class FlowdockNotifier extends Notifier {
 
     @Override
     public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl)super.getDescriptor();
+        return (DescriptorImpl) super.getDescriptor();
     }
 
     @Extension
@@ -174,19 +147,19 @@ public class FlowdockNotifier extends Notifier {
             return "Flowdock notification";
         }
 
-        public FormValidation doTestConnection(@QueryParameter("flowToken") final String flowToken,
-            @QueryParameter("notificationTags") final String notificationTags) {
-            try {
-                FlowdockAPI api = new FlowdockAPI(apiUrl(), flowToken);
-                ChatMessage testMsg = new ChatMessage();
-                testMsg.setTags(notificationTags);
-                testMsg.setContent("Your plugin is ready!");
-                api.pushChatMessage(testMsg);
-                return FormValidation.ok("Success! Flowdock plugin can send notifications to your flow.");
-            } catch(FlowdockException ex) {
-                return FormValidation.error(ex.getMessage());
-            }
-        }
+//        public FormValidation doTestConnection(@QueryParameter("flowToken") final String flowToken,
+//            @QueryParameter("notificationTags") final String notificationTags) {
+//            try {
+//                FlowdockAPI api = new FlowdockAPI(apiUrl(), flowToken);
+//                ChatMessage testMsg = new ChatMessage();
+//                testMsg.setTags(notificationTags);
+//                testMsg.setContent("Your plugin is ready!");
+//                api.pushChatMessage(testMsg);
+//                return FormValidation.ok("Success! Flowdock plugin can send notifications to your flow.");
+//            } catch(FlowdockException ex) {
+//                return FormValidation.error(ex.getMessage());
+//            }
+//        }
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
