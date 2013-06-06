@@ -9,11 +9,14 @@ public class FlowdockAPITest {
 
     @Test
     public void itShouldUseTheMessageApiUrl() {
-        PrivateMessage privateMessage = new PrivateMessage("123", "foo");
-        FlowdockAPI api = new FlowdockAPI(privateMessage);
+        TeamInboxMessage teamInboxMessage = new TeamInboxMessage("123");
+        FlowdockAPI api = new FlowdockAPI(teamInboxMessage);
 
-        assertThat(api.getApiUrl(), is(privateMessage.getApiUrl()));
+        assertThat(api.getApiUrl(), is(teamInboxMessage.getApiUrl()));
     }
+
+//    @Test
+//    public void
 
 
 }

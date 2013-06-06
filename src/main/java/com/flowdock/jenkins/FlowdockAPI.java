@@ -1,64 +1,29 @@
 package com.flowdock.jenkins;
 
 import com.flowdock.jenkins.exception.FlowdockException;
+
+import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.InputStreamReader;
-import java.io.DataOutputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-import java.net.ProtocolException;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
 public class FlowdockAPI {
-    private String apiUrl;
-    private String flowToken;
-    private FlowdockMessage message;
 
-    public FlowdockAPI(String apiUrl, String flowToken) {
-        this.apiUrl = apiUrl;
-        this.flowToken = trimFlowTokens(flowToken);
-    }
+    private FlowdockMessage message;
 
     public FlowdockAPI(FlowdockMessage message) {
         this.message = message;
     }
 
-    public void pushTeamInboxMessage(TeamInboxMessage msg) throws FlowdockException {
-        try {
-            doPost("/messages/team_inbox/", msg.asPostData());
-        } catch(UnsupportedEncodingException ex) {
-            throw new FlowdockException("Cannot encode request data: " + ex.getMessage());
-        }
-    }
-
-    public void pushChatMessage(ChatMessage msg) throws FlowdockException {
-        try {
-            doPost("/messages/chat/", msg.asPostData());
-        } catch(UnsupportedEncodingException ex) {
-            throw new FlowdockException("Cannot encode request data: " + ex.getMessage());
-        }
-    }
-
-    public void pushPrivateMessage(PrivateMessage msg) throws FlowdockException {
-        try {
-         doPost("/private/30060/messages", msg.asPostData());
-        } catch(UnsupportedEncodingException ex) {
-            throw new FlowdockException("Cannot encode request data: " + ex.getMessage());
-        }
-    }
-
-    private void doPost(String path, String data) throws FlowdockException {
-        URL url;
-        HttpURLConnection connection = null;
-        // https://api.flowdock.com/private/30060/messages/flowtoken
-        String flowdockUrl = apiUrl + path + flowToken;
+    public void sendMessage() throws FlowdockException, UnsupportedEncodingException {
+        String flowdockUrl = getApiUrl();
+        String data = getMessageData();
         try {
             // create connection
-            url = new URL(flowdockUrl);
-            connection = (HttpURLConnection) url.openConnection();
+            URL url = new URL(flowdockUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Content-Length", String.valueOf(data.getBytes().length));
@@ -72,7 +37,7 @@ public class FlowdockAPI {
             wr.flush();
             wr.close();
 
-            if(connection.getResponseCode() != 200) {
+            if (connection.getResponseCode() != 200) {
                 StringBuffer responseContent = new StringBuffer();
                 try {
                     BufferedReader in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
@@ -81,21 +46,25 @@ public class FlowdockAPI {
                         responseContent.append(responseLine);
                     }
                     in.close();
-                } catch(Exception ex) {
+                } catch (Exception e) {
                     // nothing we can do about this
                 } finally {
                     throw new FlowdockException("Flowdock returned an error response with status " +
-                    connection.getResponseCode() + " " + connection.getResponseMessage() + ", " +
-                    responseContent.toString() + "\n\nURL: " + flowdockUrl);
+                            connection.getResponseCode() + " " + connection.getResponseMessage() + ", " +
+                            responseContent.toString() + "\n\nURL: " + flowdockUrl);
                 }
             }
-        } catch(MalformedURLException ex) {
+        } catch (MalformedURLException e) {
             throw new FlowdockException("Flowdock API URL is invalid: " + flowdockUrl);
-        } catch(ProtocolException ex) {
-            throw new FlowdockException("ProtocolException in connecting to Flowdock: " + ex.getMessage());
-        } catch(IOException ex) {
-            throw new FlowdockException("IOException in connecting to Flowdock: " + ex.getMessage());
+        } catch (ProtocolException e) {
+            throw new FlowdockException("ProtocolException in connecting to Flowdock: " + e.getMessage());
+        } catch (IOException e) {
+            throw new FlowdockException("IOException in connecting to Flowdock: " + e.getMessage());
         }
+    }
+
+    private String getMessageData() throws UnsupportedEncodingException {
+        return this.message.asPostData();
     }
 
     public static String trimFlowTokens(String flowTokens) {

@@ -8,12 +8,10 @@ import java.text.MessageFormat;
 public class ChatMessage extends FlowdockMessage {
     protected String externalUserName;
 
-    public ChatMessage() {
-        this.externalUserName = "Jenkins";
-    }
 
     public ChatMessage(String token) {
         this.token = token;
+        this.externalUserName = "Jenkins";
         setApiUrl();
     }
 
@@ -26,16 +24,17 @@ public class ChatMessage extends FlowdockMessage {
         postData.append("content=").append(urlEncode(content));
         postData.append("&external_user_name=").append(urlEncode(externalUserName));
         postData.append("&tags=").append(urlEncode(tags));
+
         return postData.toString();
     }
 
     @Override
     public void setApiUrl() {
-        this.apiUrl = MessageFormat.format("{0}/messages/chat/{1}", this.baseApiUrl, this.token);
+        this.apiUrl = MessageFormat.format("{0}/messages/chat/{1}", this.BASE_API_URL, this.token);
     }
 
-    public static ChatMessage fromBuild(AbstractBuild build, BuildResult buildResult) {
-        ChatMessage msg = new ChatMessage();
+    @Override
+    protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) {
         StringBuffer content = new StringBuffer();
         String buildNo = build.getDisplayName().replaceAll("#", "");
         content.append(build.getProject().getName()).append(" build ").append(buildNo);
@@ -45,7 +44,6 @@ public class ChatMessage extends FlowdockMessage {
         String buildLink = (rootUrl == null) ? null : rootUrl + build.getUrl();
         if(buildLink != null) content.append(" \n").append(buildLink);
 
-        msg.setContent(content.toString());
-        return msg;
+        setContent(content.toString());
     }
 }

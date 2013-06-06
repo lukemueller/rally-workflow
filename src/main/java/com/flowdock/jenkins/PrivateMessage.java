@@ -1,5 +1,7 @@
 package com.flowdock.jenkins;
 
+import hudson.model.AbstractBuild;
+
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 
@@ -23,27 +25,19 @@ public class PrivateMessage extends FlowdockMessage {
         return postData.toString();
     }
 
-
-//    public static PrivateMessage fromBuild(AbstractBuild build, BuildResult buildResult) {
-//        PrivateMessage msg = new PrivateMessage();
-//        StringBuffer content = new StringBuffer();
-//        String buildNo = build.getDisplayName().replaceAll("#", "");
-//        content.append(build.getProject().getName()).append(" build ").append(buildNo);
-//        content.append(" ").append(buildResult.getHumanResult());
-//
-//        String rootUrl = Hudson.getInstance().getRootUrl();
-//        String buildLink = (rootUrl == null) ? null : rootUrl + build.getUrl();
-//        if(buildLink != null) content.append(" \n").append(buildLink);
-//
-//        msg.setContent(content.toString());
-//        return msg;
-//    }
-
+    @Override
     public String getApiUrl() {
         return this.apiUrl;
     }
 
+    @Override
     public void setApiUrl() {
         this.apiUrl = MessageFormat.format("https://{0}@api.flowdock.com/private/{1}/messages", this.token, this.recipient);
     }
+
+    @Override
+    protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
 }

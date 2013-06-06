@@ -18,6 +18,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,30 +119,34 @@ public class FlowdockNotifier extends Notifier {
     }
 
     protected void notifyFlowdock(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
-        FlowdockAPI api = new FlowdockAPI(getDescriptor().apiUrl(), flowToken);
         try {
-            sendTeamInboxMessage(api, build, buildResult, listener);
-            sendChatMessage(api, build, buildResult, listener);
+            sendTeamInboxMessage(build, buildResult, listener);
+            sendChatMessage(build, buildResult, listener);
             sendPrivateMessage();
         } catch (FlowdockException e) {
-            PrintStream logger = listener.getLogger();
-            logger.println("Flowdock: failed to send notification");
-            logger.println("Flowdock: " + e.getMessage());
+            listener.getLogger().println("Flowdock: failed to send notification");
+            listener.getLogger().println("Flowdock: " + e.getMessage());
+        } catch (UnsupportedEncodingException e) {
+            listener.getLogger().println("Flowdock: " + e.getMessage());
         }
     }
 
-    protected void sendTeamInboxMessage(FlowdockAPI api, AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException {
-        TeamInboxMessage msg = TeamInboxMessage.fromBuild(build, buildResult);
-        msg.setTags(notificationTags);
-        api.pushTeamInboxMessage(msg);
+    protected void sendTeamInboxMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
+        TeamInboxMessage teamInboxMessage = new TeamInboxMessage(flowToken);
+        teamInboxMessage.setTags(notificationTags);
+        teamInboxMessage.setContentFromBuild(build, buildResult);
+        FlowdockAPI api = new FlowdockAPI(teamInboxMessage);
+        api.sendMessage();
         listener.getLogger().println("Flowdock: Team Inbox notification sent successfully");
     }
 
-    protected void sendChatMessage(FlowdockAPI api, AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException {
+    protected void sendChatMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
         if(build.getResult() != Result.SUCCESS && chatNotification) {
-            ChatMessage chatMsg = ChatMessage.fromBuild(build, buildResult);
-            chatMsg.setTags(notificationTags);
-            api.pushChatMessage(chatMsg);
+            ChatMessage chatMessage = new ChatMessage(flowToken);
+            chatMessage.setTags(notificationTags);
+            chatMessage.setContentFromBuild(build, buildResult);
+            FlowdockAPI api = new FlowdockAPI(chatMessage);
+            api.sendMessage();
             listener.getLogger().println("Flowdock: Chat notification sent successfully");
         }
 

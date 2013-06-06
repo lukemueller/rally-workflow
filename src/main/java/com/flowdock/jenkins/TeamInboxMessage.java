@@ -62,6 +62,7 @@ public class TeamInboxMessage extends FlowdockMessage {
         this.fromName = fromName;
     }
 
+    @Override
     public String asPostData() throws UnsupportedEncodingException {
         StringBuffer postData = new StringBuffer();
         postData.append("subject=").append(urlEncode(subject));
@@ -72,25 +73,27 @@ public class TeamInboxMessage extends FlowdockMessage {
         postData.append("&project=").append(urlEncode(project));
         postData.append("&link=").append(urlEncode(link));
         postData.append("&tags=").append(urlEncode(tags));
+
         return postData.toString();
     }
 
+    @Override
     public void setApiUrl() {
-        this.apiUrl = MessageFormat.format("{0}/team_inbox/messages/{1}", this.baseApiUrl, this.token);
+        this.apiUrl = MessageFormat.format("{0}/team_inbox/messages/{1}", this.BASE_API_URL, this.token);
     }
 
-    public static TeamInboxMessage fromBuild(AbstractBuild build, BuildResult buildResult) {
-        TeamInboxMessage msg = new TeamInboxMessage();
-        msg.setProject(build.getProject().getName().replaceAll("[^a-zA-Z0-9\\-_ ]", ""));
+    @Override
+    protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) {
+        setProject(build.getProject().getName().replaceAll("[^a-zA-Z0-9\\-_ ]", ""));
         String buildNo = build.getDisplayName().replaceAll("#", "");
-        msg.setSubject(build.getProject().getName() + " build " + buildNo + " " + buildResult.getHumanResult());
+        setSubject(build.getProject().getName() + " build " + buildNo + " " + buildResult.getHumanResult());
 
         String rootUrl = Hudson.getInstance().getRootUrl();
         String buildLink = (rootUrl == null) ? null : rootUrl + build.getUrl();
-        if(buildLink != null) msg.setLink(buildLink);
+        if(buildLink != null) setLink(buildLink);
 
         if(build.getResult().isWorseThan(Result.SUCCESS))
-            msg.setFromAddress(FLOWDOCK_BUILD_FAIL_EMAIL);
+            setFromAddress(FLOWDOCK_BUILD_FAIL_EMAIL);
 
         StringBuffer content = new StringBuffer();
         content.append("<h2>").append(build.getProject().getName()).append("</h2>");
@@ -116,9 +119,7 @@ public class TeamInboxMessage extends FlowdockMessage {
             content.append("</ul></div>");
         }
 
-        msg.setContent(content.toString());
-
-        return msg;
+        setContent(content.toString());
     }
 
     public static List<Entry> parseCommits(AbstractBuild build) {
