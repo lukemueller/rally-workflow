@@ -24,6 +24,7 @@ public class FlowdockNotifier extends Notifier {
 
     private final String flowToken;
     private final String notificationTags;
+    private String privateSenderToken;
     private final boolean chatNotification;
     private final boolean privateNotification;
 
@@ -38,11 +39,12 @@ public class FlowdockNotifier extends Notifier {
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public FlowdockNotifier(String flowToken, String notificationTags, String chatNotification,
-                            String privateNotification, String notifySuccess, String notifyFailure,
-                            String notifyFixed, String notifyUnstable, String notifyAborted,
-                            String notifyNotBuilt) {
+                            String privateNotification, String privateSenderToken, String notifySuccess,
+                            String notifyFailure, String notifyFixed, String notifyUnstable,
+                            String notifyAborted, String notifyNotBuilt) {
         this.flowToken = flowToken;
         this.notificationTags = notificationTags;
+        this.privateSenderToken = privateSenderToken;
         this.privateNotification = toBoolean(privateNotification);
         this.chatNotification = toBoolean(chatNotification);
 
@@ -95,7 +97,7 @@ public class FlowdockNotifier extends Notifier {
         try {
             sendTeamInboxMessage(build, buildResult, listener);
             sendChatMessage(build, buildResult, listener);
-            sendPrivateMessage();
+            sendPrivateMessage(build, buildResult, listener);
         } catch (FlowdockException e) {
             listener.getLogger().println("Flowdock: failed to send notification");
             listener.getLogger().println("Flowdock: " + e.getMessage());
@@ -114,7 +116,7 @@ public class FlowdockNotifier extends Notifier {
     }
 
     protected void sendChatMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
-        if (build.getResult() != Result.SUCCESS && chatNotification) {
+        if (buildDidNotSucceed(build) && chatNotification) {
             ChatMessage chatMessage = new ChatMessage(flowToken);
             chatMessage.setTags(notificationTags);
             chatMessage.setContentFromBuild(build, buildResult);
@@ -122,11 +124,21 @@ public class FlowdockNotifier extends Notifier {
             api.sendMessage();
             listener.getLogger().println("Flowdock: Chat notification sent successfully");
         }
-
     }
 
-    protected void sendPrivateMessage() {
+    protected void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws UnsupportedEncodingException, FlowdockException {
+        if (buildDidNotSucceed(build) && privateNotification) {
+            PrivateMessage privateMessage = new PrivateMessage(privateSenderToken, "30060");
+            privateMessage.setTags(notificationTags);
+            privateMessage.setContentFromBuild(build, buildResult);
+            FlowdockAPI api = new FlowdockAPI(privateMessage);
+            api.sendMessage();
+            listener.getLogger().println("Flowdock: Private notification sent successfully");
+        }
+    }
 
+    private boolean buildDidNotSucceed(AbstractBuild build) {
+        return build.getResult() != Result.SUCCESS;
     }
 
     @Override
