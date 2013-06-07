@@ -22,6 +22,14 @@ public class FlowdockMessageTest {
         assertThat(message.getBuildNumber(), is("123456"));
     }
 
+    @Test
+    public void setTokenShouldTrimWhitespace() {
+        FlowdockMessage message = createFlowdockMessage();
+        message.setToken(" 123 456 789 ");
+
+        assertThat(message.getToken(), is("123456789"));
+    }
+
     private FlowdockMessage createFlowdockMessage() {
         return new FlowdockMessage() {
             @Override

@@ -67,10 +67,6 @@ public class FlowdockAPI {
         return this.message.asPostData();
     }
 
-    public static String trimFlowTokens(String flowTokens) {
-        return flowTokens.replaceAll("\\s", "");
-    }
-
     public String getApiUrl() {
         return this.message.getApiUrl();
     }

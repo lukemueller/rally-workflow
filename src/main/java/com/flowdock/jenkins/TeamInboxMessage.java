@@ -34,7 +34,7 @@ public class TeamInboxMessage extends FlowdockMessage {
     }
 
     public TeamInboxMessage(String token) {
-        this.token = token;
+        setToken(token);
         setApiUrl();
     }
 

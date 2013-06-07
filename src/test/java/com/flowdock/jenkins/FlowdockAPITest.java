@@ -14,9 +14,4 @@ public class FlowdockAPITest {
 
         assertThat(api.getApiUrl(), is(teamInboxMessage.getApiUrl()));
     }
-
-//    @Test
-//    public void
-
-
 }

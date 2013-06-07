@@ -11,7 +11,7 @@ public class PrivateMessage extends FlowdockMessage {
     private final String recipient;
 
     public PrivateMessage(String token, String recipient) {
-        this.token = token;
+        setToken(token);
         this.recipient = recipient;
         setApiUrl();
     }

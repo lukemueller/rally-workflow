@@ -6,11 +6,12 @@ import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 
 public class ChatMessage extends FlowdockMessage {
+
     protected String externalUserName;
 
 
     public ChatMessage(String token) {
-        this.token = token;
+        setToken(token);
         this.externalUserName = "Jenkins";
         setApiUrl();
     }

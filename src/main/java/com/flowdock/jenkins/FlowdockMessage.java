@@ -35,6 +35,18 @@ public abstract class FlowdockMessage {
         return this.apiUrl;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = trimToken(token);
+    }
+
+    public String trimToken(String token) {
+        return token.replaceAll("\\s", "");
+    }
+
     protected void setBuild(AbstractBuild build) {
         this.build = build;
     }
@@ -55,4 +67,5 @@ public abstract class FlowdockMessage {
     public abstract String asPostData() throws UnsupportedEncodingException;
     public abstract void setApiUrl();
     protected abstract void setContentFromBuild(AbstractBuild build, BuildResult buildResult);
+
 }
