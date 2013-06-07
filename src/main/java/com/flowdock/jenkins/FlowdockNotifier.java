@@ -28,7 +28,7 @@ public class FlowdockNotifier extends Notifier {
     private final boolean chatNotification;
     private final boolean privateNotification;
 
-    private final Map<BuildResult, Boolean> notifyMap;
+    private final Map<BuildResult, Boolean> notifyMap = new HashMap<BuildResult, Boolean>();
     private final boolean notifySuccess;
     private final boolean notifyFailure;
     private final boolean notifyFixed;
@@ -54,19 +54,20 @@ public class FlowdockNotifier extends Notifier {
         this.notifyUnstable = toBoolean(notifyUnstable);
         this.notifyAborted = toBoolean(notifyAborted);
         this.notifyNotBuilt = toBoolean(notifyNotBuilt);
-
-        // set notification map
-        this.notifyMap = new HashMap<BuildResult, Boolean>();
-        this.notifyMap.put(BuildResult.SUCCESS, this.notifySuccess);
-        this.notifyMap.put(BuildResult.FAILURE, this.notifyFailure);
-        this.notifyMap.put(BuildResult.FIXED, this.notifyFixed);
-        this.notifyMap.put(BuildResult.UNSTABLE, this.notifyUnstable);
-        this.notifyMap.put(BuildResult.ABORTED, this.notifyAborted);
-        this.notifyMap.put(BuildResult.NOT_BUILT, this.notifyNotBuilt);
+        setNotifyMap();
     }
 
     private boolean toBoolean(String configParameter) {
         return configParameter != null && configParameter.equals("true");
+    }
+
+    private void setNotifyMap() {
+        this.notifyMap.put(BuildResult.SUCCESS, notifySuccess);
+        this.notifyMap.put(BuildResult.FAILURE, notifyFailure);
+        this.notifyMap.put(BuildResult.FIXED, notifyFixed);
+        this.notifyMap.put(BuildResult.UNSTABLE, notifyUnstable);
+        this.notifyMap.put(BuildResult.ABORTED, notifyAborted);
+        this.notifyMap.put(BuildResult.NOT_BUILT, notifyNotBuilt);
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
