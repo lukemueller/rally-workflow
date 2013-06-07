@@ -11,9 +11,9 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
-import net.sf.json.JSONObject;
+import hudson.util.FormValidation;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.QueryParameter;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -117,15 +117,15 @@ public class FlowdockNotifier extends Notifier {
     }
 
     protected void sendChatMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
-            ChatMessage chatMessage = new ChatMessage(flowToken);
-            buildAndSendMessage(build, buildResult, chatMessage);
-            listener.getLogger().println("Flowdock: Chat notification sent successfully");
+        ChatMessage chatMessage = new ChatMessage(flowToken);
+        buildAndSendMessage(build, buildResult, chatMessage);
+        listener.getLogger().println("Flowdock: Chat notification sent successfully");
     }
 
-    protected void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws UnsupportedEncodingException, FlowdockException {
-            PrivateMessage privateMessage = new PrivateMessage(privateSenderToken, "30060");
-            buildAndSendMessage(build, buildResult, privateMessage);
-            listener.getLogger().println("Flowdock: Private notification sent successfully");
+    protected void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
+        PrivateMessage privateMessage = new PrivateMessage(privateSenderToken, "30060");
+        buildAndSendMessage(build, buildResult, privateMessage);
+        listener.getLogger().println("Flowdock: Private notification sent successfully");
     }
 
     private void buildAndSendMessage(AbstractBuild build, BuildResult buildResult, FlowdockMessage message) throws FlowdockException, UnsupportedEncodingException {
@@ -151,8 +151,6 @@ public class FlowdockNotifier extends Notifier {
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
-        private String apiUrl = "https://api.flowdock.com";
-
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
             return true;
         }
@@ -161,29 +159,21 @@ public class FlowdockNotifier extends Notifier {
             return "Flowdock notification";
         }
 
-//        public FormValidation doTestConnection(@QueryParameter("flowToken") final String flowToken,
-//            @QueryParameter("notificationTags") final String notificationTags) {
-//            try {
-//                FlowdockAPI api = new FlowdockAPI(apiUrl(), flowToken);
-//                ChatMessage testMsg = new ChatMessage();
-//                testMsg.setTags(notificationTags);
-//                testMsg.setContent("Your plugin is ready!");
-//                api.pushChatMessage(testMsg);
-//                return FormValidation.ok("Success! Flowdock plugin can send notifications to your flow.");
-//            } catch(FlowdockException ex) {
-//                return FormValidation.error(ex.getMessage());
-//            }
-//        }
+        public FormValidation doTestConnection(@QueryParameter("flowToken") final String flowToken,
+                                               @QueryParameter("notificationTags") final String notificationTags) {
+            try {
+                ChatMessage chatMessage = new ChatMessage(flowToken);
+                chatMessage.setTags(notificationTags);
+                chatMessage.setContent("Your plugin is ready!");
+                FlowdockAPI api = new FlowdockAPI(chatMessage);
+                api.sendMessage();
 
-        @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            apiUrl = formData.getString("apiUrl");
-            save();
-            return super.configure(req, formData);
-        }
-
-        public String apiUrl() {
-            return apiUrl;
+                return FormValidation.ok("Success! Flowdock plugin can send notifications to your flow.");
+            } catch (FlowdockException e) {
+                return FormValidation.error(e.getMessage());
+            } catch (UnsupportedEncodingException e) {
+                return FormValidation.error(e.getMessage());
+            }
         }
     }
 }
