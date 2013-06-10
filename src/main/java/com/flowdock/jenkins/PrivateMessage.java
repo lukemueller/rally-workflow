@@ -13,7 +13,6 @@ public class PrivateMessage extends FlowdockMessage {
 
     public PrivateMessage(String token) {
         setToken(token);
-        setApiUrl();
     }
 
     @Override
@@ -46,6 +45,7 @@ public class PrivateMessage extends FlowdockMessage {
 
     protected void setRecipient(String recipient) {
         this.recipient = recipient;
+        this.setApiUrl();
     }
 
 }
