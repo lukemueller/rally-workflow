@@ -1,14 +1,20 @@
 package com.flowdock.jenkins;
 
+import hudson.model.AbstractBuild;
+import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.MockBuilder;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.jvnet.hudson.test.FakeChangeLogSCM.EntryImpl;
+import static org.jvnet.hudson.test.FakeChangeLogSCM.FakeChangeLogSet;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -42,8 +48,23 @@ public class FlowdockTestCase extends HudsonTestCase {
         project.getPublishersList().add(notifierSpy);
     }
 
-    public void kickOffBuild(FreeStyleProject project) throws InterruptedException, ExecutionException {
-        project.scheduleBuild2(0).get();
+    public FreeStyleBuild kickOffBuild(FreeStyleProject project) throws InterruptedException, ExecutionException {
+        return project.scheduleBuild2(0).get();
+    }
+
+    public FakeChangeLogSet getChangeSetWithAuthors(AbstractBuild build, String... authors) {
+        List<EntryImpl> entries = new ArrayList<EntryImpl>();
+        for (String author : authors) {
+            entries.add(getEntryWithAuthor(author));
+        }
+
+        return new FakeChangeLogSet(build, entries);
+    }
+
+    private EntryImpl getEntryWithAuthor(String author) {
+        EntryImpl entry = new EntryImpl();
+        entry.withAuthor(author).withMsg("new commit");
+        return entry;
     }
 
     public void test() {

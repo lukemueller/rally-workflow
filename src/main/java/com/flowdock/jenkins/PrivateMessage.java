@@ -1,12 +1,20 @@
 package com.flowdock.jenkins;
 
 import hudson.model.AbstractBuild;
+import hudson.model.User;
 import hudson.scm.ChangeLogSet;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static hudson.scm.ChangeLogSet.Entry;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class PrivateMessage extends FlowdockMessage {
+
+    public static final Pattern PAIRING_PATTERN = Pattern.compile("^pairing.*", CASE_INSENSITIVE);
 
     private String apiUrl;
     private String recipient;
@@ -39,8 +47,27 @@ public class PrivateMessage extends FlowdockMessage {
         setBuildAndResult(build, buildResult);
     }
 
-    protected String getAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changes) {
-        return "foo";
+    protected String getRallyAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changes) {
+        String rallyAuthorString = null;
+        for (Entry entry : changes) {
+            User author = entry.getAuthor();
+
+            if (isPairingAlias(author)) {
+                rallyAuthorString = getRallyAuthorFromPairingAlias(author);
+            }
+        }
+
+        return rallyAuthorString;
+    }
+
+    private boolean isPairingAlias(User author) {
+        return PAIRING_PATTERN.matcher(author.getFullName()).matches();
+    }
+
+    private String getRallyAuthorFromPairingAlias(User author) {
+        String fullName = author.getFullName();
+
+        return MessageFormat.format("{0}@rallydev.com", fullName.split("\\+")[1]);
     }
 
     protected void setRecipient(String recipient) {
