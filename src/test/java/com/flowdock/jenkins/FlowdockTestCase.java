@@ -1,8 +1,6 @@
 package com.flowdock.jenkins;
 
-
 import hudson.model.FreeStyleProject;
-import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.MockBuilder;
 
@@ -21,6 +19,10 @@ public class FlowdockTestCase extends HudsonTestCase {
         project.getBuildersList().add(builder);
 
         return project;
+    }
+
+    public FreeStyleProject createProject() throws IOException {
+        return createFreeStyleProject();
     }
 
     /*
@@ -44,8 +46,7 @@ public class FlowdockTestCase extends HudsonTestCase {
         project.scheduleBuild2(0).get();
     }
 
-    @Test
-    public void test1() {
+    public void test() {
         // This is just a dummy test because JUnit complains about no test cases
         assertThat(true, is(true));
     }
