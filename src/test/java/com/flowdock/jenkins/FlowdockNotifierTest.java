@@ -12,8 +12,10 @@ import static org.mockito.Mockito.verify;
 
 public class FlowdockNotifierTest extends FlowdockTestCase {
 
-    @Test
-    public void shouldAlwaysSendTeamInboxMessage() throws Exception {
+    /*
+     * FlowdockNotifier should always send a TeamInboxMessage
+    */
+    public void test2() throws Exception {
         FreeStyleProject project = createProject(new UnstableBuilder());
         FlowdockNotifier notifierSpy = createFlowdockNotifierSpy(null, null);
 
@@ -23,8 +25,10 @@ public class FlowdockNotifierTest extends FlowdockTestCase {
         verify(notifierSpy).sendTeamInboxMessage(any(AbstractBuild.class), any(BuildResult.class), any(BuildListener.class));
     }
 
-    @Test
-    public void shouldSendChatMessageWhenEnabledAndBuildDoesNotSucceed() throws Exception {
+    /*
+     * FlowdockNotifier should send a ChatMessage when enabled and build doesn't succeed
+     */
+    public void test3() throws Exception {
         FreeStyleProject project = createProject(new FailureBuilder());
         FlowdockNotifier notifierSpy = createFlowdockNotifierSpy("true", null);
 
@@ -34,8 +38,10 @@ public class FlowdockNotifierTest extends FlowdockTestCase {
         verify(notifierSpy).sendChatMessage(any(AbstractBuild.class), any(BuildResult.class), any(BuildListener.class));
     }
 
-    @Test
-    public void shouldSendPrivateMessageWhenEnabledAndBuildDoesNotSucceed() throws Exception {
+    /*
+     * FlowdockNotifier should send a PrivateMessage when enabled and build doesn't succeed
+     */
+    public void test4() throws Exception {
         FreeStyleProject project = createProject(new FailureBuilder());
         FlowdockNotifier notifierSpy = createFlowdockNotifierSpy(null, "true");
 
