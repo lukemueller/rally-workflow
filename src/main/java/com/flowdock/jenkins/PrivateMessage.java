@@ -1,6 +1,7 @@
 package com.flowdock.jenkins;
 
 import hudson.model.AbstractBuild;
+import hudson.scm.ChangeLogSet;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
@@ -8,11 +9,10 @@ import java.text.MessageFormat;
 public class PrivateMessage extends FlowdockMessage {
 
     private String apiUrl;
-    private final String recipient;
+    private String recipient;
 
-    public PrivateMessage(String token, String recipient) {
+    public PrivateMessage(String token) {
         setToken(token);
-        this.recipient = recipient;
         setApiUrl();
     }
 
@@ -38,6 +38,14 @@ public class PrivateMessage extends FlowdockMessage {
     @Override
     protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) {
         setBuildAndResult(build, buildResult);
+    }
+
+    protected String getAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changes) {
+        return "foo";
+    }
+
+    protected void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
 }

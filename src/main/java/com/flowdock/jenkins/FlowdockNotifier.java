@@ -124,7 +124,7 @@ public class FlowdockNotifier extends Notifier {
     }
 
     protected void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
-        PrivateMessage privateMessage = new PrivateMessage(privateSenderToken, "30060");
+        PrivateMessage privateMessage = new PrivateMessage(privateSenderToken);
         buildAndSendMessage(build, buildResult, privateMessage);
         listener.getLogger().println("Flowdock: Private notification sent successfully");
     }
