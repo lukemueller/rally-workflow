@@ -17,7 +17,7 @@ public class FlowdockAPI {
     }
 
     public void sendMessage() throws FlowdockException, UnsupportedEncodingException {
-        String flowdockUrl = getApiUrl();
+        String flowdockUrl = getMessageApiUrl();
         String data = getMessageData();
         try {
             // create connection
@@ -67,7 +67,7 @@ public class FlowdockAPI {
         return this.message.asPostData();
     }
 
-    public String getApiUrl() {
+    public String getMessageApiUrl() {
         return this.message.getApiUrl();
     }
 }

@@ -8,10 +8,10 @@ import static org.hamcrest.Matchers.is;
 public class FlowdockAPITest {
 
     @Test
-    public void itShouldUseTheMessageApiUrl() {
+    public void testGetMessageApiUrl() {
         TeamInboxMessage teamInboxMessage = new TeamInboxMessage("123");
         FlowdockAPI api = new FlowdockAPI(teamInboxMessage);
 
-        assertThat(api.getApiUrl(), is(teamInboxMessage.getApiUrl()));
+        assertThat(api.getMessageApiUrl(), is(teamInboxMessage.getApiUrl()));
     }
 }
