@@ -1,9 +1,14 @@
 package com.flowdock.jenkins;
 
 import hudson.model.AbstractBuild;
+import hudson.scm.ChangeLogSet;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import static hudson.scm.ChangeLogSet.*;
 
 public abstract class FlowdockMessage {
     protected static final String BASE_API_URL = "https://api.flowdock.com";
@@ -62,6 +67,36 @@ public abstract class FlowdockMessage {
 
     protected String getBuildNumber() {
         return build.getDisplayName().replaceAll("#", "");
+    }
+
+    protected static List<Entry> reverseCommits(AbstractBuild build) {
+        return reverseCommits(build.getChangeSet());
+    }
+
+    protected static List<Entry> reverseCommits(ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet) {
+        if(changeLogSet == null || changeLogSet.isEmptySet()) {
+            return null;
+        }
+
+        List<Entry> commits = new ArrayList();
+        for (final Entry entry : changeLogSet) {
+            commits.add(0, entry);
+        }
+        return commits;
+    }
+
+    protected static String commitId(Entry commit) {
+        String id = commit.getCommitId();
+        if (id == null) {
+            return "unknown";
+        } else {
+            return id;
+        }
+    }
+
+    protected static String commitId(Entry commit, int length) {
+        String id = commitId(commit);
+        return id.substring(0, Math.max(length, id.length()));
     }
 
     public abstract String asPostData() throws UnsupportedEncodingException;

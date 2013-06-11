@@ -2,11 +2,10 @@ package com.flowdock.jenkins;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.ArrayList;
+
 import hudson.model.AbstractBuild;
 import hudson.model.Hudson;
 import hudson.model.Result;
-import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
 import java.io.UnsupportedEncodingException;
 
@@ -102,7 +101,7 @@ public class TeamInboxMessage extends FlowdockMessage {
         if(buildLink != null)
             content.append("URL: <a href=\"").append(buildLink).append("\">").append(buildLink).append("</a>").append("<br />");
 
-        List<Entry> commits = parseCommits(build);
+        List<Entry> commits = reverseCommits(build);
         if(commits != null) {
             content.append("<h3>Changes</h3><div class=\"commits\"><ul class=\"commit-list clean\">");
             for(Entry commit : commits) {
@@ -120,32 +119,5 @@ public class TeamInboxMessage extends FlowdockMessage {
         }
 
         setContent(content.toString());
-    }
-
-    public static List<Entry> parseCommits(AbstractBuild build) {
-        final ChangeLogSet<? extends Entry> cs = build.getChangeSet();
-        if(cs == null || cs.isEmptySet())
-            return null;
-
-        List<Entry> commits = new ArrayList();
-        for (final Entry entry : cs) {
-            // reverse order in order to have recent commits first
-            commits.add(0, entry);
-        }
-        return commits;
-    }
-
-    private static String commitId(Entry commit) {
-      String id = commit.getCommitId();
-      if (id == null) {
-        return "unknown";
-      } else {
-        return id;
-      }
-    }
-
-    private static String commitId(Entry commit, int length) {
-      String id = commitId(commit);
-      return id.substring(0, Math.max(length, id.length()));
     }
 }

@@ -47,11 +47,12 @@ public class PrivateMessage extends FlowdockMessage {
         setBuildAndResult(build, buildResult);
     }
 
-    protected String getRallyAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changes) {
+    protected String getRallyAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet) {
         String rallyAuthorString = null;
-        for (Entry entry : changes) {
-            User author = entry.getAuthor();
+        for (Entry entry : reverseCommits(changeLogSet)) {
+            if (rallyAuthorString != null) { break; }
 
+            User author = entry.getAuthor();
             if (isPairingAlias(author)) {
                 rallyAuthorString = getRallyAuthorFromPairingAlias(author);
             }
