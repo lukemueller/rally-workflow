@@ -51,6 +51,28 @@ public class PrivateMessageTest extends FlowdockTestCase {
         assertThat(privateMessage.getRallyAuthor(changes), is(expectedAuthor));
     }
 
+    public void testGetRallyAuthorFromSingleScmChange() throws Exception {
+        FreeStyleProject project = createProject();
+        FreeStyleBuild build = kickOffBuild(project);
+
+        ChangeLogSet<? extends ChangeLogSet.Entry> changes = getChangeSetWithAuthors(build, "lmueller");
+        PrivateMessage privateMessage = createPrivateMessage();
+        String expectedAuthor = "lmueller@rallydev.com";
+
+        assertThat(privateMessage.getRallyAuthor(changes), is(expectedAuthor));
+    }
+
+    public void testGetRallyAuthorFromMultipleScmChanges() throws Exception {
+        FreeStyleProject project = createProject();
+        FreeStyleBuild build = kickOffBuild(project);
+
+        ChangeLogSet<? extends ChangeLogSet.Entry> changes = getChangeSetWithAuthors(build, "mparrish", "lmueller");
+        PrivateMessage privateMessage = createPrivateMessage();
+        String expectedAuthor = "lmueller@rallydev.com";
+
+        assertThat(privateMessage.getRallyAuthor(changes), is(expectedAuthor));
+    }
+
     private PrivateMessage createPrivateMessage() {
         return new PrivateMessage("123");
     }

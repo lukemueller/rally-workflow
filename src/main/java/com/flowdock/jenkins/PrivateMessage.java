@@ -45,6 +45,12 @@ public class PrivateMessage extends FlowdockMessage {
     @Override
     protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) {
         setBuildAndResult(build, buildResult);
+        String authorEmail = getRallyAuthor(build.getChangeSet());
+    }
+
+    protected void setRecipient(String recipient) {
+        this.recipient = recipient;
+        this.setApiUrl();
     }
 
     protected String getRallyAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet) {
@@ -55,10 +61,20 @@ public class PrivateMessage extends FlowdockMessage {
             User author = entry.getAuthor();
             if (isPairingAlias(author)) {
                 rallyAuthorString = getRallyAuthorFromPairingAlias(author);
+            } else if (authorIsNotEmpty(author)) {
+                rallyAuthorString = getRallyAuthorFromInitials(author);
             }
         }
 
         return rallyAuthorString;
+    }
+
+    private boolean authorIsNotEmpty(User author) {
+        return author != null && author.getDisplayName() != null && !author.getDisplayName().isEmpty();
+    }
+
+    private String getRallyAuthorFromInitials(User author) {
+        return MessageFormat.format("{0}@rallydev.com", author.getDisplayName());
     }
 
     private boolean isPairingAlias(User author) {
@@ -71,9 +87,5 @@ public class PrivateMessage extends FlowdockMessage {
         return MessageFormat.format("{0}@rallydev.com", fullName.split("\\+")[1]);
     }
 
-    protected void setRecipient(String recipient) {
-        this.recipient = recipient;
-        this.setApiUrl();
-    }
 
 }
