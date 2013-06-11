@@ -6,7 +6,6 @@ import hudson.scm.ChangeLogSet;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static hudson.scm.ChangeLogSet.Entry;
@@ -15,12 +14,16 @@ import static java.util.regex.Pattern.CASE_INSENSITIVE;
 public class PrivateMessage extends FlowdockMessage {
 
     public static final Pattern PAIRING_PATTERN = Pattern.compile("^pairing.*", CASE_INSENSITIVE);
+    public static final String USER_API_URL = "https://api.flowdock.com/users";
 
     private String apiUrl;
     private String recipient;
+    private final String password;
+    private final String username;
 
-    public PrivateMessage(String token) {
-        setToken(token);
+    public PrivateMessage(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class PrivateMessage extends FlowdockMessage {
 
     @Override
     public void setApiUrl() {
-        this.apiUrl = MessageFormat.format("https://{0}@api.flowdock.com/private/{1}/messages", this.token, this.recipient);
+        this.apiUrl = MessageFormat.format("https://api.flowdock.com/private/{0}/messages", this.recipient);
     }
 
     @Override
@@ -86,6 +89,4 @@ public class PrivateMessage extends FlowdockMessage {
 
         return MessageFormat.format("{0}@rallydev.com", fullName.split("\\+")[1]);
     }
-
-
 }

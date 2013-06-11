@@ -24,9 +24,10 @@ public class FlowdockNotifier extends Notifier {
 
     private final String flowToken;
     private final String notificationTags;
-    private String privateSenderToken;
     private final boolean chatNotification;
     private final boolean privateNotification;
+    private final String username;
+    private final String password;
 
     private final Map<BuildResult, Boolean> notifyMap = new HashMap<BuildResult, Boolean>();
     private final boolean notifySuccess;
@@ -39,13 +40,14 @@ public class FlowdockNotifier extends Notifier {
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public FlowdockNotifier(String flowToken, String notificationTags, String chatNotification,
-                            String privateNotification, String privateSenderToken, String notifySuccess,
-                            String notifyFailure, String notifyFixed, String notifyUnstable,
-                            String notifyAborted, String notifyNotBuilt) {
+                            String privateNotification, String username, String password,
+                            String notifySuccess, String notifyFailure, String notifyFixed,
+                            String notifyUnstable, String notifyAborted, String notifyNotBuilt) {
         this.flowToken = flowToken;
         this.notificationTags = notificationTags;
-        this.privateSenderToken = privateSenderToken;
         this.privateNotification = toBoolean(privateNotification);
+        this.username = username;
+        this.password = password;
         this.chatNotification = toBoolean(chatNotification);
 
         this.notifySuccess = toBoolean(notifySuccess);
@@ -124,7 +126,7 @@ public class FlowdockNotifier extends Notifier {
     }
 
     protected void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
-        PrivateMessage privateMessage = new PrivateMessage(privateSenderToken);
+        PrivateMessage privateMessage = new PrivateMessage(username, password);
         buildAndSendMessage(build, buildResult, privateMessage);
         listener.getLogger().println("Flowdock: Private notification sent successfully");
     }

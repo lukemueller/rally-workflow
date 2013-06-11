@@ -37,7 +37,7 @@ public class FlowdockTestCase extends HudsonTestCase {
      */
     public FlowdockNotifier createFlowdockNotifierSpy(String chatNotification, String privateNotification) {
         FlowdockNotifier notifier = new FlowdockNotifier(
-                "123", null, chatNotification, privateNotification, "456", "true", "true", "true", "true", "true", "true");
+                "123", null, chatNotification, privateNotification, "foo", "bar", "true", "true", "true", "true", "true", "true");
         FlowdockNotifier notifierSpy = spy(notifier);
         doReturn(mock(FlowdockAPI.class)).when(notifierSpy).getFlowdockAPIForMessage(any(FlowdockMessage.class));
 

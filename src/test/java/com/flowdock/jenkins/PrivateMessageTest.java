@@ -12,10 +12,10 @@ import static org.hamcrest.Matchers.is;
 
 public class PrivateMessageTest extends FlowdockTestCase {
 
-    public void testGetApiUrlShouldReturnCorrectPrivateMessageUrl() {
+    public void testGetApiUrl() {
         PrivateMessage privateMessage = createPrivateMessage();
         privateMessage.setRecipient("foo");
-        String expectedApiUrl = "https://123@api.flowdock.com/private/foo/messages";
+        String expectedApiUrl = "https://api.flowdock.com/private/foo/messages";
 
         assertThat(privateMessage.getApiUrl(), is(expectedApiUrl));
     }
@@ -74,10 +74,10 @@ public class PrivateMessageTest extends FlowdockTestCase {
     }
 
     private PrivateMessage createPrivateMessage() {
-        return new PrivateMessage("123");
+        return new PrivateMessage("username", "password");
     }
 
     private String[] getRequiredInputParams() {
-        return new String[]{"event=message", "&content="};
+        return new String[]{"event=message", "content="};
     }
 }
