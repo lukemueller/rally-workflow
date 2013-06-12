@@ -26,6 +26,7 @@ public class FlowdockNotifier extends Notifier {
     private final String notificationTags;
     private final boolean chatNotification;
     private final boolean privateNotification;
+    private final String basicAuthToken;
     private final String username;
     private final String password;
 
@@ -40,12 +41,13 @@ public class FlowdockNotifier extends Notifier {
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public FlowdockNotifier(String flowToken, String notificationTags, String chatNotification,
-                            String privateNotification, String username, String password,
+                            String privateNotification, String basicAuthToken, String username, String password,
                             String notifySuccess, String notifyFailure, String notifyFixed,
                             String notifyUnstable, String notifyAborted, String notifyNotBuilt) {
         this.flowToken = flowToken;
         this.notificationTags = notificationTags;
         this.privateNotification = toBoolean(privateNotification);
+        this.basicAuthToken = basicAuthToken;
         this.username = username;
         this.password = password;
         this.chatNotification = toBoolean(chatNotification);
@@ -126,9 +128,17 @@ public class FlowdockNotifier extends Notifier {
     }
 
     public void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
-        PrivateMessage privateMessage = new PrivateMessage(username, password);
+        PrivateMessage privateMessage = createPrivateMessage();
         buildAndSendMessage(build, buildResult, privateMessage);
         listener.getLogger().println("Flowdock: Private notification sent successfully");
+    }
+
+    public PrivateMessage createPrivateMessage() {
+        if (basicAuthToken != null) {
+            return new PrivateMessage(basicAuthToken);
+        } else {
+            return new PrivateMessage(username, password);
+        }
     }
 
     public void buildAndSendMessage(AbstractBuild build, BuildResult buildResult, FlowdockMessage message) throws FlowdockException, UnsupportedEncodingException {
