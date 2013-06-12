@@ -2,7 +2,6 @@ package com.flowdock.jenkins;
 
 import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.model.AbstractBuild;
-import hudson.model.User;
 import hudson.scm.ChangeLogSet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -29,6 +28,10 @@ public class PrivateMessage extends FlowdockMessage {
     public PrivateMessage(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public PrivateMessage(String token) {
+        this.token = token;
     }
 
     @Override
@@ -111,7 +114,7 @@ public class PrivateMessage extends FlowdockMessage {
     }
 
     private boolean isEmpty(String author) {
-        return author == null  || author.isEmpty();
+        return author == null || author.isEmpty();
     }
 
     private String getRallyAuthorFromPairingAlias(String author) {
