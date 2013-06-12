@@ -4,10 +4,6 @@ import com.flowdock.jenkins.PrivateMessage;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.scm.ChangeLogSet;
-import org.jvnet.hudson.test.FailureBuilder;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

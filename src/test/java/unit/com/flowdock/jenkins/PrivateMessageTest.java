@@ -37,10 +37,10 @@ public class PrivateMessageTest {
         PrivateMessage privateMessage = new PrivateMessage(username, "test123");
         privateMessage.setRecipientEmail(username);
 
-        String userId = privateMessage.getUserId();
+        String actualUserId = privateMessage.getUserId();
         String expectedUserId = "39863";
 
-        assertThat(userId, is(expectedUserId));
+        assertThat(actualUserId, is(expectedUserId));
     }
 
     private PrivateMessage createPrivateMessage() {

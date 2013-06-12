@@ -53,6 +53,10 @@ public class PrivateMessage extends FlowdockMessage {
     @Override
     protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) throws FlowdockException {
         setBuildAndResult(build, buildResult);
+        setRecipient();
+    }
+
+    private void setRecipient() throws FlowdockException {
         setRecipientEmail(getRallyAuthor(build.getChangeSet()));
         setRecipientId(getUserId());
     }
@@ -85,12 +89,12 @@ public class PrivateMessage extends FlowdockMessage {
                 break;
             }
 
-            User author = entry.getAuthor();
+            String author = entry.getAuthor().getFullName();
             if (isPairingAlias(author)) {
                 rallyAuthorString = getRallyAuthorFromPairingAlias(author);
             } else if (isFullName(author)) {
                 rallyAuthorString = getRallyAuthorFromFullName(author);
-            } else if (authorIsNotEmpty(author)) {
+            } else if (!isEmpty(author)) {
                 rallyAuthorString = getRallyAuthorFromInitials(author);
             }
         }
@@ -98,34 +102,31 @@ public class PrivateMessage extends FlowdockMessage {
         return rallyAuthorString;
     }
 
-    private String getRallyAuthorFromFullName(User author) {
-        String authorName = author.getFullName();
-        String firstInitial = authorName.substring(0, 1).toLowerCase();
-        String lastName = authorName.split("\\s")[1].toLowerCase();
+    private boolean isPairingAlias(String author) {
+        return PAIRING_PATTERN.matcher(author).matches();
+    }
+
+    private boolean isFullName(String author) {
+        return FULL_NAME_PATTERN.matcher(author).matches();
+    }
+
+    private boolean isEmpty(String author) {
+        return author == null  || author.isEmpty();
+    }
+
+    private String getRallyAuthorFromPairingAlias(String author) {
+        return MessageFormat.format("{0}@rallydev.com", author.split("\\+")[1]);
+    }
+
+    private String getRallyAuthorFromFullName(String author) {
+        String firstInitial = author.substring(0, 1).toLowerCase();
+        String lastName = author.split("\\s")[1].toLowerCase();
 
         return MessageFormat.format("{0}{1}@rallydev.com", firstInitial, lastName);
     }
 
-    private boolean authorIsNotEmpty(User author) {
-        return author != null && author.getDisplayName() != null && !author.getDisplayName().isEmpty();
-    }
-
-    private String getRallyAuthorFromInitials(User author) {
-        return MessageFormat.format("{0}@rallydev.com", author.getDisplayName());
-    }
-
-    private boolean isPairingAlias(User author) {
-        return PAIRING_PATTERN.matcher(author.getFullName()).matches();
-    }
-
-    private boolean isFullName(User author) {
-        return FULL_NAME_PATTERN.matcher(author.getFullName()).matches();
-    }
-
-    private String getRallyAuthorFromPairingAlias(User author) {
-        String fullName = author.getFullName();
-
-        return MessageFormat.format("{0}@rallydev.com", fullName.split("\\+")[1]);
+    private String getRallyAuthorFromInitials(String author) {
+        return MessageFormat.format("{0}@rallydev.com", author);
     }
 
     public String getUserId() throws FlowdockException {
