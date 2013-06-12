@@ -73,7 +73,7 @@ public class FlowdockAPI {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", MessageFormat.format("Basic {0}", getBaseAuthToken()));
+            connection.setRequestProperty("Authorization", MessageFormat.format("Basic {0}", getBasicAuthToken()));
             connection.setUseCaches(false);
             connection.setDoOutput(true);
             connection.connect();
@@ -101,7 +101,7 @@ public class FlowdockAPI {
         return message.getApiUrl();
     }
 
-    public String getBaseAuthToken() {
+    public String getBasicAuthToken() {
         String authToken = null;
         if (message instanceof PrivateMessage) {
             String username = ((PrivateMessage)message).getUsername();

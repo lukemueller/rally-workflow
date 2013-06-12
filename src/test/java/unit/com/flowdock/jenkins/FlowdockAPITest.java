@@ -21,11 +21,20 @@ public class FlowdockAPITest {
     }
 
     @Test
-    public void testGetBaseAuthToken() throws IOException {
+    public void testGetBasicAuthTokenWhenSuppliedWithUserNameAndPassword() throws IOException {
         PrivateMessage privateMessage = new PrivateMessage("test123@test.com", "test123");
         FlowdockAPI api = new FlowdockAPI(privateMessage);
         String expectedAuthToken = "dGVzdDEyM0B0ZXN0LmNvbTp0ZXN0MTIz";
 
-        assertThat(api.getBaseAuthToken(), is(expectedAuthToken));
+        assertThat(api.getBasicAuthToken(), is(expectedAuthToken));
+    }
+
+    @Test
+    public void testGetBasicAuthTokenWhenSuppliedWithToken() {
+        String authToken = "123";
+        PrivateMessage privateMessage = new PrivateMessage(authToken);
+        FlowdockAPI api = new FlowdockAPI(privateMessage);
+        
+        assertThat(api.getBasicAuthToken(), is(authToken));
     }
 }
