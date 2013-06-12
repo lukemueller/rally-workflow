@@ -17,6 +17,7 @@ import static java.util.regex.Pattern.CASE_INSENSITIVE;
 public class PrivateMessage extends FlowdockMessage {
 
     public static final Pattern PAIRING_PATTERN = Pattern.compile("^pairing.*", CASE_INSENSITIVE);
+    public static final Pattern FULL_NAME_PATTERN = Pattern.compile("[A-Z]{1}[a-z]+\\s[A-Z]{1}[a-z]+");
     public static final String USER_API_URL = "https://api.flowdock.com/users";
 
     private String apiUrl;
@@ -87,12 +88,22 @@ public class PrivateMessage extends FlowdockMessage {
             User author = entry.getAuthor();
             if (isPairingAlias(author)) {
                 rallyAuthorString = getRallyAuthorFromPairingAlias(author);
+            } else if (isFullName(author)) {
+                rallyAuthorString = getRallyAuthorFromFullName(author);
             } else if (authorIsNotEmpty(author)) {
                 rallyAuthorString = getRallyAuthorFromInitials(author);
             }
         }
 
         return rallyAuthorString;
+    }
+
+    private String getRallyAuthorFromFullName(User author) {
+        String authorName = author.getFullName();
+        String firstInitial = authorName.substring(0, 1).toLowerCase();
+        String lastName = authorName.split("\\s")[1].toLowerCase();
+
+        return MessageFormat.format("{0}{1}@rallydev.com", firstInitial, lastName);
     }
 
     private boolean authorIsNotEmpty(User author) {
@@ -105,6 +116,10 @@ public class PrivateMessage extends FlowdockMessage {
 
     private boolean isPairingAlias(User author) {
         return PAIRING_PATTERN.matcher(author.getFullName()).matches();
+    }
+
+    private boolean isFullName(User author) {
+        return FULL_NAME_PATTERN.matcher(author.getFullName()).matches();
     }
 
     private String getRallyAuthorFromPairingAlias(User author) {
