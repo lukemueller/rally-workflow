@@ -131,7 +131,7 @@ public class FlowdockNotifier extends Notifier {
         listener.getLogger().println("Flowdock: Private notification sent successfully");
     }
 
-    private void buildAndSendMessage(AbstractBuild build, BuildResult buildResult, FlowdockMessage message) throws FlowdockException, UnsupportedEncodingException {
+    protected void buildAndSendMessage(AbstractBuild build, BuildResult buildResult, FlowdockMessage message) throws FlowdockException, UnsupportedEncodingException {
         message.setTags(notificationTags);
         message.setContentFromBuild(build, buildResult);
         FlowdockAPI api = getFlowdockAPIForMessage(message);

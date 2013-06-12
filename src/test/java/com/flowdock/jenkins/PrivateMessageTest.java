@@ -1,5 +1,6 @@
 package com.flowdock.jenkins;
 
+import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.scm.ChangeLogSet;
@@ -14,7 +15,7 @@ public class PrivateMessageTest extends FlowdockTestCase {
 
     public void testGetApiUrl() {
         PrivateMessage privateMessage = createPrivateMessage();
-        privateMessage.setRecipient("foo");
+        privateMessage.setRecipientId("foo");
         String expectedApiUrl = "https://api.flowdock.com/private/foo/messages";
 
         assertThat(privateMessage.getApiUrl(), is(expectedApiUrl));
@@ -66,11 +67,22 @@ public class PrivateMessageTest extends FlowdockTestCase {
         FreeStyleProject project = createProject();
         FreeStyleBuild build = kickOffBuild(project);
 
-        ChangeLogSet<? extends ChangeLogSet.Entry> changes = getChangeSetWithAuthors(build, "mparrish", "lmueller");
+        ChangeLogSet<? extends ChangeLogSet.Entry> changes = getChangeSetWithAuthors(build, "foo", "lmueller");
         PrivateMessage privateMessage = createPrivateMessage();
         String expectedAuthor = "lmueller@rallydev.com";
 
         assertThat(privateMessage.getRallyAuthor(changes), is(expectedAuthor));
+    }
+
+    public void testGetUserId() throws FlowdockException {
+        String username = "test123@test.com";
+        PrivateMessage privateMessage = new PrivateMessage(username, "test123");
+        privateMessage.setRecipientEmail(username);
+
+        String userId = privateMessage.getUserId();
+        String expectedUserId = "39863";
+
+        assertThat(userId, is(expectedUserId));
     }
 
     private PrivateMessage createPrivateMessage() {

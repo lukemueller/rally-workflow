@@ -1,12 +1,15 @@
 package com.flowdock.jenkins;
 
 import com.flowdock.jenkins.exception.FlowdockException;
+import org.json.simple.JSONValue;
+import sun.misc.BASE64Encoder;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.text.MessageFormat;
 
 public class FlowdockAPI {
 
@@ -63,11 +66,54 @@ public class FlowdockAPI {
         }
     }
 
-    private String getMessageData() throws UnsupportedEncodingException {
-        return this.message.asPostData();
+    public Object getUsers() throws FlowdockException {
+        String flowdockUrl = PrivateMessage.USER_API_URL;
+        try {
+            URL url = new URL(flowdockUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", MessageFormat.format("Basic {0}", getBaseAuthToken()));
+            connection.setUseCaches(false);
+            connection.setDoOutput(true);
+            connection.connect();
+
+            BufferedReader response = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            Object jsonResponse = JSONValue.parse(response.readLine());
+            connection.disconnect();
+
+            return jsonResponse;
+
+        } catch (MalformedURLException e) {
+            throw new FlowdockException("Flowdock API URL is invalid: " + flowdockUrl);
+        } catch (ProtocolException e) {
+            throw new FlowdockException("ProtocolException in connecting to Flowdock: " + e.getMessage());
+        } catch (IOException e) {
+            throw new FlowdockException("IOException in connecting to Flowdock: " + e.getMessage());
+        }
     }
 
-    public String getMessageApiUrl() {
-        return this.message.getApiUrl();
+    private String getMessageData() throws UnsupportedEncodingException {
+        return message.asPostData();
+    }
+
+    protected String getMessageApiUrl() {
+        return message.getApiUrl();
+    }
+
+    protected String getBaseAuthToken() {
+        String authToken = null;
+        if (message instanceof PrivateMessage) {
+            String username = ((PrivateMessage)message).getUsername();
+            String password = ((PrivateMessage)message).getPassword();
+            String decodedAuth = MessageFormat.format("{0}:{1}", username, password);
+
+            BASE64Encoder encoder = new BASE64Encoder();
+            String encodedAuthToken = encoder.encodeBuffer(decodedAuth.getBytes());
+
+            return encodedAuthToken.toString().replaceAll("\n", "");
+        }
+
+        return authToken;
     }
 }

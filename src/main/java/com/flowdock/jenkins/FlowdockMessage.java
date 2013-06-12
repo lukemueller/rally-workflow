@@ -1,5 +1,6 @@
 package com.flowdock.jenkins;
 
+import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.model.AbstractBuild;
 import hudson.scm.ChangeLogSet;
 
@@ -101,6 +102,5 @@ public abstract class FlowdockMessage {
 
     public abstract String asPostData() throws UnsupportedEncodingException;
     public abstract void setApiUrl();
-    protected abstract void setContentFromBuild(AbstractBuild build, BuildResult buildResult);
-
+    protected abstract void setContentFromBuild(AbstractBuild build, BuildResult buildResult) throws FlowdockException;
 }

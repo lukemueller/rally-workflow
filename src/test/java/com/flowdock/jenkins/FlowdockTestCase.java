@@ -1,5 +1,6 @@
 package com.flowdock.jenkins;
 
+import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.model.AbstractBuild;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
@@ -7,6 +8,7 @@ import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.MockBuilder;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -35,11 +37,12 @@ public class FlowdockTestCase extends HudsonTestCase {
      * Use Mockito to spy on a FlowdockNotifier instance while stubbing out FlowdockAPI so were not actually
      * sending requests to FlowDock
      */
-    public FlowdockNotifier createFlowdockNotifierSpy(String chatNotification, String privateNotification) {
+    public FlowdockNotifier createFlowdockNotifierSpy(String chatNotification, String privateNotification) throws UnsupportedEncodingException, FlowdockException {
         FlowdockNotifier notifier = new FlowdockNotifier(
                 "123", null, chatNotification, privateNotification, "foo", "bar", "true", "true", "true", "true", "true", "true");
         FlowdockNotifier notifierSpy = spy(notifier);
         doReturn(mock(FlowdockAPI.class)).when(notifierSpy).getFlowdockAPIForMessage(any(FlowdockMessage.class));
+        doNothing().when(notifierSpy).buildAndSendMessage(any(AbstractBuild.class), any(BuildResult.class), any(FlowdockMessage.class));
 
         return notifierSpy;
     }

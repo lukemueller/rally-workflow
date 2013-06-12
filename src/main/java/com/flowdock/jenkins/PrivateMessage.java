@@ -1,8 +1,11 @@
 package com.flowdock.jenkins;
 
+import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.model.AbstractBuild;
 import hudson.model.User;
 import hudson.scm.ChangeLogSet;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
@@ -17,9 +20,10 @@ public class PrivateMessage extends FlowdockMessage {
     public static final String USER_API_URL = "https://api.flowdock.com/users";
 
     private String apiUrl;
-    private String recipient;
-    private final String password;
-    private final String username;
+    private String recipientId;
+    private String recipientEmail;
+    private String username;
+    private String password;
 
     public PrivateMessage(String username, String password) {
         this.username = username;
@@ -42,24 +46,43 @@ public class PrivateMessage extends FlowdockMessage {
 
     @Override
     public void setApiUrl() {
-        this.apiUrl = MessageFormat.format("https://api.flowdock.com/private/{0}/messages", this.recipient);
+        this.apiUrl = MessageFormat.format("https://api.flowdock.com/private/{0}/messages", this.recipientId);
     }
 
     @Override
-    protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) {
+    protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) throws FlowdockException {
         setBuildAndResult(build, buildResult);
-        String authorEmail = getRallyAuthor(build.getChangeSet());
+        setRecipientEmail(getRallyAuthor(build.getChangeSet()));
+        setRecipientId(getUserId());
     }
 
-    protected void setRecipient(String recipient) {
-        this.recipient = recipient;
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    protected void setRecipientId(String recipientId) {
+        this.recipientId = recipientId;
         this.setApiUrl();
+    }
+
+    public String getRecipientEmail() {
+        return recipientEmail;
+    }
+
+    public void setRecipientEmail(String recipientEmail) {
+        this.recipientEmail = recipientEmail;
     }
 
     protected String getRallyAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet) {
         String rallyAuthorString = null;
         for (Entry entry : reverseCommits(changeLogSet)) {
-            if (rallyAuthorString != null) { break; }
+            if (rallyAuthorString != null) {
+                break;
+            }
 
             User author = entry.getAuthor();
             if (isPairingAlias(author)) {
@@ -88,5 +111,28 @@ public class PrivateMessage extends FlowdockMessage {
         String fullName = author.getFullName();
 
         return MessageFormat.format("{0}@rallydev.com", fullName.split("\\+")[1]);
+    }
+
+    protected String getUserId() throws FlowdockException {
+        String userId = null;
+        JSONArray users = getJsonArrayOfUsers();
+
+        for (Object userObject : users) {
+            JSONObject user = (JSONObject) userObject;
+
+            if (user.get("email").equals(getRecipientEmail())) {
+                userId = user.get("id").toString();
+                break;
+            }
+        }
+
+        return userId;
+    }
+
+    private JSONArray getJsonArrayOfUsers() throws FlowdockException {
+        FlowdockAPI api = new FlowdockAPI(this);
+        Object users = api.getUsers();
+
+        return (JSONArray) users;
     }
 }
