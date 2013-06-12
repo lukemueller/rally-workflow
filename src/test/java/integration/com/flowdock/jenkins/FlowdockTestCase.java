@@ -1,5 +1,9 @@
-package com.flowdock.jenkins;
+package integration.com.flowdock.jenkins;
 
+import com.flowdock.jenkins.BuildResult;
+import com.flowdock.jenkins.FlowdockAPI;
+import com.flowdock.jenkins.FlowdockMessage;
+import com.flowdock.jenkins.FlowdockNotifier;
 import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.model.AbstractBuild;
 import hudson.model.FreeStyleBuild;

@@ -64,7 +64,7 @@ public class PrivateMessage extends FlowdockMessage {
         return password;
     }
 
-    protected void setRecipientId(String recipientId) {
+    public void setRecipientId(String recipientId) {
         this.recipientId = recipientId;
         this.setApiUrl();
     }
@@ -77,7 +77,7 @@ public class PrivateMessage extends FlowdockMessage {
         this.recipientEmail = recipientEmail;
     }
 
-    protected String getRallyAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet) {
+    public String getRallyAuthor(ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet) {
         String rallyAuthorString = null;
         for (Entry entry : reverseCommits(changeLogSet)) {
             if (rallyAuthorString != null) {
@@ -113,7 +113,7 @@ public class PrivateMessage extends FlowdockMessage {
         return MessageFormat.format("{0}@rallydev.com", fullName.split("\\+")[1]);
     }
 
-    protected String getUserId() throws FlowdockException {
+    public String getUserId() throws FlowdockException {
         String userId = null;
         JSONArray users = getJsonArrayOfUsers();
 

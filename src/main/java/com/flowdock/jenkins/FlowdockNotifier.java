@@ -113,32 +113,32 @@ public class FlowdockNotifier extends Notifier {
         }
     }
 
-    protected void sendTeamInboxMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
+    public void sendTeamInboxMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
         TeamInboxMessage teamInboxMessage = new TeamInboxMessage(flowToken);
         buildAndSendMessage(build, buildResult, teamInboxMessage);
         listener.getLogger().println("Flowdock: Team Inbox notification sent successfully");
     }
 
-    protected void sendChatMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
+    public void sendChatMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
         ChatMessage chatMessage = new ChatMessage(flowToken);
         buildAndSendMessage(build, buildResult, chatMessage);
         listener.getLogger().println("Flowdock: Chat notification sent successfully");
     }
 
-    protected void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
+    public void sendPrivateMessage(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws FlowdockException, UnsupportedEncodingException {
         PrivateMessage privateMessage = new PrivateMessage(username, password);
         buildAndSendMessage(build, buildResult, privateMessage);
         listener.getLogger().println("Flowdock: Private notification sent successfully");
     }
 
-    protected void buildAndSendMessage(AbstractBuild build, BuildResult buildResult, FlowdockMessage message) throws FlowdockException, UnsupportedEncodingException {
+    public void buildAndSendMessage(AbstractBuild build, BuildResult buildResult, FlowdockMessage message) throws FlowdockException, UnsupportedEncodingException {
         message.setTags(notificationTags);
         message.setContentFromBuild(build, buildResult);
         FlowdockAPI api = getFlowdockAPIForMessage(message);
         api.sendMessage();
     }
 
-    protected FlowdockAPI getFlowdockAPIForMessage(FlowdockMessage message) {
+    public FlowdockAPI getFlowdockAPIForMessage(FlowdockMessage message) {
         return new FlowdockAPI(message);
     }
 

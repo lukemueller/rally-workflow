@@ -1,5 +1,8 @@
-package com.flowdock.jenkins;
+package unit.com.flowdock.jenkins;
 
+import com.flowdock.jenkins.FlowdockAPI;
+import com.flowdock.jenkins.PrivateMessage;
+import com.flowdock.jenkins.TeamInboxMessage;
 import org.junit.Test;
 
 import java.io.IOException;

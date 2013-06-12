@@ -53,7 +53,7 @@ public abstract class FlowdockMessage {
         return token.replaceAll("\\s", "");
     }
 
-    protected void setBuild(AbstractBuild build) {
+    public void setBuild(AbstractBuild build) {
         this.build = build;
     }
 
@@ -66,7 +66,7 @@ public abstract class FlowdockMessage {
         setBuildResult(buildResult);
     }
 
-    protected String getBuildNumber() {
+    public String getBuildNumber() {
         return build.getDisplayName().replaceAll("#", "");
     }
 

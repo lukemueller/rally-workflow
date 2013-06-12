@@ -1,5 +1,7 @@
-package com.flowdock.jenkins;
+package unit.com.flowdock.jenkins;
 
+import com.flowdock.jenkins.BuildResult;
+import com.flowdock.jenkins.FlowdockMessage;
 import hudson.model.AbstractBuild;
 import org.junit.Test;
 

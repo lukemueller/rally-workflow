@@ -97,11 +97,11 @@ public class FlowdockAPI {
         return message.asPostData();
     }
 
-    protected String getMessageApiUrl() {
+    public String getMessageApiUrl() {
         return message.getApiUrl();
     }
 
-    protected String getBaseAuthToken() {
+    public String getBaseAuthToken() {
         String authToken = null;
         if (message instanceof PrivateMessage) {
             String username = ((PrivateMessage)message).getUsername();

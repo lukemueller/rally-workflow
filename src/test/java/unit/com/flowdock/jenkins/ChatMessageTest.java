@@ -1,5 +1,6 @@
-package com.flowdock.jenkins;
+package unit.com.flowdock.jenkins;
 
+import com.flowdock.jenkins.ChatMessage;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -26,7 +27,6 @@ public class ChatMessageTest {
         for(String parameter : getRequiredInputParams()) {
             assertThat(postData, containsString(parameter));
         }
-
     }
 
     private ChatMessage createPrivateMessage() {

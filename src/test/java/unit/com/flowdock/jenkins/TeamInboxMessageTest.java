@@ -1,5 +1,6 @@
-package com.flowdock.jenkins;
+package unit.com.flowdock.jenkins;
 
+import com.flowdock.jenkins.TeamInboxMessage;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
