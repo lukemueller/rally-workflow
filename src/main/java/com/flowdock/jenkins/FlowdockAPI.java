@@ -30,6 +30,9 @@ public class FlowdockAPI {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Content-Length", String.valueOf(data.getBytes().length));
+            if (message instanceof PrivateMessage) {
+                connection.setRequestProperty("Authorization", MessageFormat.format("Basic {0}", getBasicAuthToken()));
+            }
             connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);

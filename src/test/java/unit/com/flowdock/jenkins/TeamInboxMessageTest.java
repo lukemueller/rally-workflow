@@ -36,6 +36,4 @@ public class TeamInboxMessageTest {
     private String[] getRequiredInputParams() {
         return new String[] { "subject=", "content=", "from_address=", "from_name=", "source=", "project=", "link=", "tags=" };
     }
-
-
 }

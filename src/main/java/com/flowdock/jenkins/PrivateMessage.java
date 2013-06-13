@@ -50,9 +50,11 @@ public class PrivateMessage extends FlowdockMessage {
     protected void setContentFromBuild(AbstractBuild build, BuildResult buildResult) throws FlowdockException {
         setBuildAndResult(build, buildResult);
         setRecipient();
+
+        setContent("Hello World");
     }
 
-    private void setRecipient() throws FlowdockException {
+    public void setRecipient() throws FlowdockException {
         setRecipientEmail(getRallyAuthor(build.getChangeSet()));
         setRecipientId(getUserId());
     }

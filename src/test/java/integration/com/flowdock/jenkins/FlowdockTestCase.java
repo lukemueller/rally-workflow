@@ -1,18 +1,17 @@
 package integration.com.flowdock.jenkins;
 
-import com.flowdock.jenkins.BuildResult;
-import com.flowdock.jenkins.FlowdockAPI;
-import com.flowdock.jenkins.FlowdockMessage;
-import com.flowdock.jenkins.FlowdockNotifier;
+import com.flowdock.jenkins.*;
 import com.flowdock.jenkins.exception.FlowdockException;
 import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.MockBuilder;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -38,8 +37,7 @@ public class FlowdockTestCase extends HudsonTestCase {
     }
 
     /*
-     * Use Mockito to spy on a FlowdockNotifier instance while stubbing out FlowdockAPI so were not actually
-     * sending requests to FlowDock
+     * Returns a notifier spy with a mock API to prevent actually sending messages to Flowdock
      */
     public FlowdockNotifier createFlowdockNotifierSpy(String chatNotification, String privateNotification) throws UnsupportedEncodingException, FlowdockException {
         FlowdockNotifier notifier = new FlowdockNotifier(
@@ -49,6 +47,71 @@ public class FlowdockTestCase extends HudsonTestCase {
         doNothing().when(notifierSpy).buildAndSendMessage(any(AbstractBuild.class), any(BuildResult.class), any(FlowdockMessage.class));
 
         return notifierSpy;
+    }
+
+    /*
+     * Returns a notifier that will ONLY send a PrivateMessage configured with sender and recipient from integration.cfg
+     */
+    public FlowdockNotifier createFlowdockNotifierForSendingPrivateMessages() throws FlowdockException, UnsupportedEncodingException {
+        FlowdockNotifier notifier = new FlowdockNotifier(
+                "123", null, "false", "true", null, "true", "true", "true", "true", "true", "true");
+
+        FlowdockNotifier notifierSpy = spy(notifier);
+        doNothing().when(notifierSpy).sendTeamInboxMessage(any(AbstractBuild.class), any(BuildResult.class), any(BuildListener.class));
+        doReturn(getPrivateMessageSpy()).when(notifierSpy).createPrivateMessage();
+
+        return notifierSpy;
+    }
+
+    private PrivateMessage getPrivateMessageSpy() throws FlowdockException {
+        PrivateMessage privateMessage = new PrivateMessage(getSenderTokenFromConfig());
+        privateMessage.setRecipientId(getRecipientIdFromConfig());
+        PrivateMessage privateMessageSpy = spy(privateMessage);
+
+        doNothing().when(privateMessageSpy).setRecipient();
+
+        return privateMessageSpy;
+    }
+
+    protected String getSenderTokenFromConfig() {
+        return (String) getConfigAsJson().get("senderToken");
+    }
+
+    protected String getRecipientEmailFromConfig() {
+        return (String) getConfigAsJson().get("recipientEmail");
+    }
+
+    protected String getRecipientIdFromConfig() {
+        return (String) getConfigAsJson().get("recipientId");
+    }
+
+    private JSONObject getConfigAsJson() {
+        StringBuffer stringBuffer = new StringBuffer();
+        JSONObject jsonResponse = null;
+
+        jsonResponse = getJsonObjectFromConfig(stringBuffer, jsonResponse);
+
+        return jsonResponse;
+    }
+
+    private JSONObject getJsonObjectFromConfig(StringBuffer stringBuffer, JSONObject jsonResponse) {
+        String currentLine;
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("src/test/java/integration/com/flowdock/jenkins/integration.cfg"));
+
+            while ((currentLine = bufferedReader.readLine()) != null) {
+                stringBuffer.append(currentLine);
+            }
+
+            jsonResponse = (JSONObject) JSONValue.parse(stringBuffer.toString());
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return jsonResponse;
     }
 
     public void addFlowdockNotificationToPostBuildActions(FreeStyleProject project, FlowdockNotifier notifierSpy) throws IOException {

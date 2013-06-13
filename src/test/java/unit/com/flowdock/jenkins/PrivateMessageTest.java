@@ -1,7 +1,6 @@
 package unit.com.flowdock.jenkins;
 
 import com.flowdock.jenkins.PrivateMessage;
-import com.flowdock.jenkins.exception.FlowdockException;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -29,17 +28,6 @@ public class PrivateMessageTest {
         for (String parameter : getRequiredInputParams()) {
             assertThat(postData, containsString(parameter));
         }
-    }
-
-    @Test
-    public void testGetUserId() throws FlowdockException {
-        PrivateMessage privateMessage = new PrivateMessage("45a21444ae2382e9378ca7a0262d1e17");
-        privateMessage.setRecipientEmail("test123@test.com");
-
-        String actualUserId = privateMessage.getUserId();
-        String expectedUserId = "39863";
-
-        assertThat(actualUserId, is(expectedUserId));
     }
 
     private PrivateMessage createPrivateMessage() {
