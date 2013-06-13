@@ -77,6 +77,6 @@ public class PrivateMessageTest extends FlowdockTestCase {
     }
 
     private PrivateMessage createPrivateMessage() {
-        return new PrivateMessage("username", "password");
+        return new PrivateMessage("123");
     }
 }

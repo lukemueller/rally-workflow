@@ -33,9 +33,8 @@ public class PrivateMessageTest {
 
     @Test
     public void testGetUserId() throws FlowdockException {
-        String username = "test123@test.com";
-        PrivateMessage privateMessage = new PrivateMessage(username, "test123");
-        privateMessage.setRecipientEmail(username);
+        PrivateMessage privateMessage = new PrivateMessage("45a21444ae2382e9378ca7a0262d1e17");
+        privateMessage.setRecipientEmail("test123@test.com");
 
         String actualUserId = privateMessage.getUserId();
         String expectedUserId = "39863";
@@ -44,7 +43,7 @@ public class PrivateMessageTest {
     }
 
     private PrivateMessage createPrivateMessage() {
-        return new PrivateMessage("username", "password");
+        return new PrivateMessage("123");
     }
 
     private String[] getRequiredInputParams() {

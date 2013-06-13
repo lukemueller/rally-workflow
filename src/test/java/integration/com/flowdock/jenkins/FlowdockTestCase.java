@@ -43,7 +43,7 @@ public class FlowdockTestCase extends HudsonTestCase {
      */
     public FlowdockNotifier createFlowdockNotifierSpy(String chatNotification, String privateNotification) throws UnsupportedEncodingException, FlowdockException {
         FlowdockNotifier notifier = new FlowdockNotifier(
-                "123", null, chatNotification, privateNotification, null, "foo", "bar", "true", "true", "true", "true", "true", "true");
+                "123", null, chatNotification, privateNotification, null, "true", "true", "true", "true", "true", "true");
         FlowdockNotifier notifierSpy = spy(notifier);
         doReturn(mock(FlowdockAPI.class)).when(notifierSpy).getFlowdockAPIForMessage(any(FlowdockMessage.class));
         doNothing().when(notifierSpy).buildAndSendMessage(any(AbstractBuild.class), any(BuildResult.class), any(FlowdockMessage.class));

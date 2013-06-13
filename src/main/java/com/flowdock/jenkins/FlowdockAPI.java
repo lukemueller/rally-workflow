@@ -105,23 +105,15 @@ public class FlowdockAPI {
         String authToken = null;
 
         if (message instanceof PrivateMessage) {
-            if (message.getToken() != null) {
-                authToken = message.getToken();
-            } else {
-                authToken = generateBasicAuthToken();
-            }
+            authToken = generateBasicAuthToken();
         }
 
         return authToken;
     }
 
     private String generateBasicAuthToken() {
-        String username = ((PrivateMessage) message).getUsername();
-        String password = ((PrivateMessage) message).getPassword();
-        String decodedAuth = MessageFormat.format("{0}:{1}", username, password);
-
         BASE64Encoder encoder = new BASE64Encoder();
-        String encodedAuthToken = encoder.encodeBuffer(decodedAuth.getBytes());
+        String encodedAuthToken = encoder.encodeBuffer(message.getToken().getBytes());
 
         return encodedAuthToken.toString().replaceAll("\n", "");
     }

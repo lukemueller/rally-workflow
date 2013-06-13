@@ -22,13 +22,6 @@ public class PrivateMessage extends FlowdockMessage {
     private String apiUrl;
     private String recipientId;
     private String recipientEmail;
-    private String username;
-    private String password;
-
-    public PrivateMessage(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
 
     public PrivateMessage(String token) {
         this.token = token;
@@ -62,14 +55,6 @@ public class PrivateMessage extends FlowdockMessage {
     private void setRecipient() throws FlowdockException {
         setRecipientEmail(getRallyAuthor(build.getChangeSet()));
         setRecipientId(getUserId());
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setRecipientId(String recipientId) {
